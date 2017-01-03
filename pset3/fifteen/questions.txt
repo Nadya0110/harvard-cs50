@@ -1,0 +1,4 @@
+0. Allows all dimensions from 3 x 3 upto 9 x 9 (inclusive). i.e. 3 x 3, 5 x 5, 6 x 6, 7 x 7, 8 x 8, 9 x 9
+1. A two-dimensional array
+2. greet
+3. init, draw, move, won
