@@ -2,7 +2,8 @@
 *
 !**/
 !**/*.*
-*.dYSM/
+**/*.dYSM/
+
 
 # OS files
 .DS_Store
