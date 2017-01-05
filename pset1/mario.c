@@ -1,5 +1,7 @@
 /**
- * Prints two-sided pyramid
+ * mario.c
+ * 
+ * Prints a pyramid, n tall
  */
 
 #include <cs50.h>

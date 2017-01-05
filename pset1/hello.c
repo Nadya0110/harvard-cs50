@@ -1,3 +1,9 @@
+/**
+ * hello.c
+ *
+ * hello, world!
+ */
+
 #include <stdio.h>
 
 int main(void) {

@@ -1,8 +1,9 @@
 /**
+ * crack.c
+ * 
  * Decrypts ciphertexts encrypted using C's DES-based crypt function 
- * Pratinav Bagla
  *
- * Fun Fact: O(276,437,316,705,873,087) That's about 276.4 Quadrillion combinations!
+ * usage: crack ciphertext
  */
 
 #define _XOPEN_SOURCE
@@ -19,7 +20,7 @@ bool check_key(char *key, char *salt, char *hash);
 
 int main(int argc, char *argv[]) {
   if (argc != 2) {
-    printf("usage: ./crack ciphertext\n"); return 1;
+    printf("usage: crack ciphertext\n"); return 1;
   }
 
   // get salt from the first two chars of the hash
@@ -74,7 +75,7 @@ bool dict_attack(char *hash, char *salt) {
 
 /**
  * Brute forces to hash every combination of printable ASCII chars (95 total) with a max length of 8 chars
- * O(95^8 + 95^7 + 97^6 ... 95^1 = 276,437,316,705,637,200) that's about 276 Quadrillion!
+ * O(95^8 + 95^7 + 97^6 ... 95^1 = 276,437,316,705,637,200) lol
  */
 bool brute_force(char *hash, char *salt) {
   // max num of chars in key is 8 + 1 null terminator = 9 bytes

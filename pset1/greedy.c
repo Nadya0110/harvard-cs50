@@ -1,3 +1,9 @@
+/**
+ * greedy.c
+ *
+ * gets the minimum number of coins needed to repay some amount of change
+ */
+
 #include <stdio.h>
 #include <cs50.h>
 #include <math.h>

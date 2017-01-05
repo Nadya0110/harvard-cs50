@@ -1,6 +1,7 @@
 /**
+ * initials.c
+ * 
  * Prints initials of the user's name
- * Pratinav Bagla
  */
 
 #include <cs50.h>

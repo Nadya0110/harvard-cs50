@@ -1,3 +1,11 @@
+/**
+ * caesar.c
+ * 
+ * Implements Caesar's Cipher
+ *
+ * usage: caesar key
+ */
+
 #include <cs50.h>
 #include <stdio.h>
 #include <string.h>

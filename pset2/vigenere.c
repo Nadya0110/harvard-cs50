@@ -1,3 +1,11 @@
+/**
+ * vigenere.c
+ * 
+ * Implements Vigenere's Cipher
+ *
+ * usage: vigenere keyword
+ */
+
 #include <cs50.h>
 #include <stdio.h>
 #include <string.h>
@@ -31,6 +39,7 @@ int main(int argc, char *argv[]) {
     else key_shift--;
     printf("%c", c);
   }
+  
   printf("\n");
   return 0;
 }

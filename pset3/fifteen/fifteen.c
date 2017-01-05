@@ -211,8 +211,7 @@ bool move(int tile)
 
     // x and y positions of tile and _
     int tile_pos_x, tile_pos_y, _pos_x, _pos_y;
-    for (int y = 0; y < d; y++)
-    {
+    for (int y = 0; y < d; y++) {
         for (int x = 0; x < d; x++)
         {
             if (board[y][x] == 0)

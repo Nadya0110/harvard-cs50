@@ -1,7 +1,7 @@
 /**
+ * credit.c
+ * 
  * Validates credit card number
- *
- * PS: Sorry for the comment overload. Makes the program look like a mess. Just wanted to make sure my code is understood.
  */
 
 #include <cs50.h>
@@ -18,11 +18,11 @@ int main(void) {
   printf("number: ");
   long long num = get_long_long();
 
-  // if the checksum algorithm confirms
+  // confirm checksum
   if (checksum(num)) {
-    // get the length of the credit card num
+    // length of the credit card num
     int len = get_length(num);
-    // get the first two digits of the credit card num
+    // first two digits of the credit card num
     int first_digits = get_first_digits(num);
 
     if (len == 15 && (first_digits == 34 || first_digits == 37)) status = "AMEX";
