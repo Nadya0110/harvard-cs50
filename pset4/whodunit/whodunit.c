@@ -71,8 +71,8 @@ int main(int argc, char *argv[]) {
       fread(&triple, sizeof(RGBTRIPLE), 1, infile);
 
       // act like the red plastic
-      triple.rgbtBlue = 0;
-      triple.rgbtGreen = 0;
+      triple.rgbtBlue = 255;
+      triple.rgbtGreen = 255;
 
       // write RGB triple to outfile
       fwrite(&triple, sizeof(RGBTRIPLE), 1, outfile);
