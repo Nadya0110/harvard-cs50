@@ -1,15 +1,12 @@
 /**
  * Implements a dictionary's functionality.
  * Using TRIE
- *
- * This version actually re-calculates size of dictionary. every damn time.
  */
 
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <string.h>
 
 #include "dictionary.h"
 
@@ -23,8 +20,10 @@ typedef struct node
 // prototypes
 int index_char(char c);
 node *create_node();
-unsigned int children_size(node *n);
 bool unload_node(node *n);
+
+// word count
+unsigned int word_count = 0;
 
 // root node
 node *root;
@@ -53,55 +52,69 @@ bool check(const char *word)
  */
 bool load(const char *dictionary)
 {
+  word_count = 0;
+
   // open dictioary
-  FILE *fp = fopen(dictionary, "r");
+  FILE *fp = fopen(dictionary, "rb");
   if (fp == NULL)
     return false;
 
-  // create root TRIE node for dictionary
-  root = create_node();
-  if (root == NULL)
+  // find the size of the file contents
+  fseek(fp, 0, SEEK_END);
+  unsigned int fsize = ftell(fp);
+  fseek(fp, 0, SEEK_SET);
+
+  // load entire file onto buffer
+  char *buffer = malloc(fsize + 1);
+  if (buffer == NULL) {
+    fclose(fp);
     return false;
-
-  char buffer[46];
-
-  // iterate over words
-  while (fgets(buffer, 47, fp) != NULL)
-  {
-    int len = strlen(buffer);
-
-    // remove trailing \n
-    if (buffer[len - 1] == '\n')
-    {
-      len--;
-      buffer[len] = '\0';
-    }
-
-    // set current node to root node
-    node *current_node = root;
-
-    // iterate over chars in word
-    for (int i = 0; i < len; i++)
-    {
-      int index = index_char(buffer[i]);
-
-      if (current_node -> children[index] == NULL)
-      {
-        current_node -> children[index] = create_node();
-
-        // if node is still NULL malloc must have failed
-        if (current_node -> children[index] == NULL)
-          return false;
-      }
-
-      current_node = current_node -> children[index];
-    }
-
-    current_node -> is_leaf = true;
   }
 
+  fread(buffer, fsize, 1, fp);
   fclose(fp);
 
+  // null terminate the buffer
+  buffer[fsize] = '\0';
+
+  // create root TRIE node for dictionary
+  root = create_node();
+  if (root == NULL) {
+    free(buffer);
+    return false;
+  }
+
+  node *current_node = root;
+
+  // iterate over chars
+  for (int i = 0; i < fsize; i++)
+  {
+    // word has ended
+    if (buffer[i] == '\n')
+    {
+      current_node -> is_leaf = true;
+      current_node = root;
+      word_count++;
+      continue;
+    }
+
+    int index = index_char(buffer[i]);
+
+    if (current_node -> children[index] == NULL)
+    {
+      current_node -> children[index] = create_node();
+
+      // if node is still NULL malloc must have failed
+      if (current_node -> children[index] == NULL) {
+        free(buffer);
+        return false;
+      }
+    }
+
+    current_node = current_node -> children[index];
+  }
+
+  free(buffer);
   return true;
 }
 
@@ -110,12 +123,7 @@ bool load(const char *dictionary)
  */
 unsigned int size(void)
 {
-  for (int i = 0; i < 27; i++)
-  {
-    if (root -> children[i] != NULL)
-      return children_size(root);
-  }
-  return 0;
+  return word_count;
 }
 
 /**
@@ -153,21 +161,6 @@ node *create_node()
   n -> is_leaf = false;
 
   return n;
-}
-
-/**
- * get size of children of node n (recursively)
- */
-unsigned int children_size(node *n)
-{
-  unsigned int count = 0;
-  for (int i = 0; i < 27; i++)
-  {
-    if (n -> children[i] != NULL)
-      count += children_size(n -> children[i]);
-  }
-  if (n -> is_leaf) count += 1;
-  return count;
 }
 
 /**

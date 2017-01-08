@@ -1,53 +1,55 @@
 /**
  * Implements a dictionary's functionality.
- * Using TRIE
- *
- * This version doesn't re-calculate size of dictionary every time size() is called.
+ * Using Hash tables
  */
 
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <stdbool.h>
 #include <string.h>
 
 #include "dictionary.h"
 
-// TRIE node
+#define TABLE_SIZE 200000
+
 typedef struct node
 {
-  struct node *children[27];
-  bool is_leaf;
+  char word[LENGTH + 1];
+  struct node *next;
 } node;
 
 // prototypes
-int index_char(char c);
-node *create_node();
-bool unload_node(node *n);
+unsigned long hash(char *str);
 
 // word count
 unsigned int word_count = 0;
 
-// root node
-node *root;
+// hash table
+node *table[TABLE_SIZE];
 
 /**
  * Returns true if word is in dictionary else false.
  */
 bool check(const char *word)
 {
-  node *current_node = root;
-  for (int i = 0, len = strlen(word); i < len; i++)
-  {
-    int index = index_char(word[i]);
+  int len = strlen(word);
+  char s[len + 1];
+  s[len] = '\0';
 
-    if (current_node -> children[index] == NULL)
-      return false;
+  for (int i = 0; i < len; i++)
+    s[i] = tolower(word[i]);
 
-    current_node = current_node -> children[index];
+  int index = hash(s);
+  node *n = table[index];
+
+  while (n != NULL) {
+    if (strcmp(s, n -> word) == 0)
+      return true;
+    n = n -> next;
   }
 
-  return current_node -> is_leaf;
+  return false;
 }
 
 /**
@@ -58,54 +60,34 @@ bool load(const char *dictionary)
   word_count = 0;
 
   // open dictioary
-  FILE *fp = fopen(dictionary, "r");
+  FILE *fp = fopen(dictionary, "rb");
   if (fp == NULL)
     return false;
 
-  // create root TRIE node for dictionary
-  root = create_node();
-  if (root == NULL)
-    return false;
+  char buffer[LENGTH + 1];
 
-  char buffer[46];
+  int lim = LENGTH + 2;
 
-  // iterate over words
-  while (fgets(buffer, 47, fp) != NULL)
-  {
+  while (fgets(buffer, lim, fp) != NULL) {
+    // strip \n
     int len = strlen(buffer);
-
-    // remove trailing \n
     if (buffer[len - 1] == '\n')
-    {
-      len--;
-      buffer[len] = '\0';
+      buffer[--len] = '\0';
+
+    int index = hash(buffer);
+
+    node *new_node = malloc(sizeof(node));
+    if (new_node == NULL) {
+      fclose(fp);
+      return false;
     }
 
-    // set current node to root node
-    node *current_node = root;
+    strcpy(new_node -> word, buffer);
+    new_node -> next = table[index];
 
-    // iterate over chars in word
-    for (int i = 0; i < len; i++)
-    {
-      int index = index_char(buffer[i]);
-
-      if (current_node -> children[index] == NULL)
-      {
-        current_node -> children[index] = create_node();
-
-        // if node is still NULL malloc must have failed
-        if (current_node -> children[index] == NULL)
-          return false;
-      }
-
-      current_node = current_node -> children[index];
-    }
-
-    current_node -> is_leaf = true;
+    table[index] = new_node;
     word_count++;
   }
-
-  fclose(fp);
 
   return true;
 }
@@ -123,48 +105,30 @@ unsigned int size(void)
  */
 bool unload(void)
 {
-  return unload_node(root);
-}
-
-/**
- * returns index based on char
- */
-int index_char(char c) {
-  if (c == '\'')
-    return 26;
-  else if (c >= 'A' && c <= 'Z')
-    return c - 65;
-  else
-    return c - 97;
-}
-
-/**
- * creates a new node with all NULL children
- */
-node *create_node()
-{
-  node *n = malloc(sizeof(node));
-  if (n == NULL)
-    return NULL;
-
-  for (int i = 0; i < 27; i++)
-    n -> children[i] = NULL;
-
-  n -> is_leaf = false;
-
-  return n;
-}
-
-/**
- * frees node n and it's children
- */
-bool unload_node(node *n)
-{
-  for (int i = 0; i < 27; i++)
-  {
-    if (n -> children[i] != NULL)
-      unload_node(n -> children[i]);
+  for (int i = 0; i < TABLE_SIZE; i++) {
+    node *next = table[i];
+    while (next != NULL) {
+      node *t = next;
+      next = next -> next;
+      free(t);
+    }
   }
-  free(n);
+
+  word_count = 0;
   return true;
+}
+
+/**
+ * djb2 hash function
+ * retreived from http://www.cse.yorku.ca/~oz/hash.html
+ */
+unsigned long hash(char *str)
+{
+  unsigned long hash = 5381;
+  int c;
+
+  while ((c = *str++))
+      hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+  return hash % TABLE_SIZE;
 }
