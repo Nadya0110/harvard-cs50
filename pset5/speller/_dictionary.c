@@ -2,7 +2,7 @@
  * Implements a dictionary's functionality.
  * Using TRIE
  *
- * This version doesn't re-calculate size of dictionary every time size() is called.
+ * This version actually re-calculates size of dictionary. every damn time.
  */
 
 #include <stdbool.h>
@@ -23,10 +23,8 @@ typedef struct node
 // prototypes
 int index_char(char c);
 node *create_node();
+unsigned int children_size(node *n);
 bool unload_node(node *n);
-
-// word count
-unsigned int word_count = 0;
 
 // root node
 node *root;
@@ -55,8 +53,6 @@ bool check(const char *word)
  */
 bool load(const char *dictionary)
 {
-  word_count = 0;
-
   // open dictioary
   FILE *fp = fopen(dictionary, "r");
   if (fp == NULL)
@@ -102,7 +98,6 @@ bool load(const char *dictionary)
     }
 
     current_node -> is_leaf = true;
-    word_count++;
   }
 
   fclose(fp);
@@ -115,7 +110,12 @@ bool load(const char *dictionary)
  */
 unsigned int size(void)
 {
-  return word_count;
+  for (int i = 0; i < 27; i++)
+  {
+    if (root -> children[i] != NULL)
+      return children_size(root);
+  }
+  return 0;
 }
 
 /**
@@ -153,6 +153,21 @@ node *create_node()
   n -> is_leaf = false;
 
   return n;
+}
+
+/**
+ * get size of children of node n (recursively)
+ */
+unsigned int children_size(node *n)
+{
+  unsigned int count = 0;
+  for (int i = 0; i < 27; i++)
+  {
+    if (n -> children[i] != NULL)
+      count += children_size(n -> children[i]);
+  }
+  if (n -> is_leaf) count += 1;
+  return count;
 }
 
 /**
