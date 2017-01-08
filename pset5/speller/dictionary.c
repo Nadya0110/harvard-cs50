@@ -40,7 +40,7 @@ bool check(const char *word)
   for (int i = 0; i < len; i++)
     s[i] = tolower(word[i]);
 
-  int index = hash(s);
+  int index = hash(s) % TABLE_SIZE;
   node *n = table[index];
 
   while (n != NULL) {
@@ -74,7 +74,7 @@ bool load(const char *dictionary)
     if (buffer[len - 1] == '\n')
       buffer[--len] = '\0';
 
-    int index = hash(buffer);
+    int index = hash(buffer) % TABLE_SIZE;
 
     node *new_node = malloc(sizeof(node));
     if (new_node == NULL) {
@@ -130,5 +130,5 @@ unsigned long hash(char *str)
   while ((c = *str++))
       hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 
-  return hash % TABLE_SIZE;
+  return hash;
 }
