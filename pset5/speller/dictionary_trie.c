@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "dictionary.h"
 
@@ -20,7 +21,7 @@ typedef struct node
 // prototypes
 int index_char(char c);
 node *create_node();
-bool unload_node(node *n);
+void unload_node(node *n);
 
 // word count
 unsigned int word_count = 0;
@@ -131,7 +132,8 @@ unsigned int size(void)
  */
 bool unload(void)
 {
-  return unload_node(root);
+  unload_node(root);
+  return true;
 }
 
 /**
@@ -166,7 +168,7 @@ node *create_node()
 /**
  * frees node n and it's children
  */
-bool unload_node(node *n)
+void unload_node(node *n)
 {
   for (int i = 0; i < 27; i++)
   {
@@ -174,5 +176,4 @@ bool unload_node(node *n)
       unload_node(n -> children[i]);
   }
   free(n);
-  return true;
 }
